@@ -1,0 +1,570 @@
+% =============================================================================
+% ATLAS_poster_template_2026.sty
+% ATLAS poster template — layout, colors, and rendering macro.
+%
+% Usage in your .tex file:
+%   \usepackage[A,##]{ATLAS_poster_template_2024}   % or [B,##] or [C,##] or [INF] or [OE] or [Z], ## = project number
+%
+% Package options:
+%   A  (default)  	Red theme   — Project Area A
+%   B             	Green theme — Project Area B
+%   C             	Blue theme  — Project Area C
+%   INF, OE, Z 	Grey theme — Support Projects
+%
+% After loading, fill the five content hooks then call \makemyposter:
+%   \renewcommand{\BackgroundContent}{...}
+%   \renewcommand{\ObjectivesContent}{...}
+%   \renewcommand{\MethodsContent}{...}
+%   \renewcommand{\CollaborationsContent}{...}
+%   \renewcommand{\ResearchContent}{...}
+%   \makemyposter
+% =============================================================================
+
+\ProvidesPackage{ATLAS_poster_template_2026}[2026/02/27 ATLAS Poster Template]
+
+\RequirePackage{tikz}
+\RequirePackage{ifthen}
+\RequirePackage{xcolor}
+\RequirePackage{datetime2}
+
+% --- Package options: \usepackage[A,02]{poster_template} --------------------
+% First option  : A / B / C  — selects the colour theme
+% Second option : anything else (e.g. 02) — stored as the subproject code
+\newcommand{\pt@area}{A}       % default area
+\newcommand{\pt@subproject}{}  % default subproject (empty)
+
+\DeclareOption{A}{\renewcommand{\pt@area}{A}}
+\DeclareOption{B}{\renewcommand{\pt@area}{B}}
+\DeclareOption{C}{\renewcommand{\pt@area}{C}}
+\DeclareOption{INF}{\renewcommand{\pt@area}{INF}}
+\DeclareOption{OE}{\renewcommand{\pt@area}{OE}}
+\DeclareOption{Z}{\renewcommand{\pt@area}{Z}}
+\DeclareOption*{\edef\pt@subproject{\CurrentOption}}
+\ProcessOptions\relax
+
+% Public macros
+\newcommand{\ProjectArea}{\pt@area}
+\newcommand{\SubProject}{\pt@subproject}
+
+% --- Institute logos (primary and optional secondary) ----------------------
+% \pt@logoA is set eagerly at load time so it expands to a plain string
+% inside \includegraphics{} — avoids the \endcsname error from lazy \ifthenelse.
+\newcommand{\pt@logoA}{logos/uni_stuttgart.pdf}% default
+% -------- Area A --------
+\ifthenelse{\equal{\pt@area}{A}\AND\equal{\pt@subproject}{01}}{\renewcommand{\pt@logoA}{logos/ITheoC.png}}{}
+\ifthenelse{\equal{\pt@area}{A}\AND\equal{\pt@subproject}{02}}{\renewcommand{\pt@logoA}{logos/IAG.png}}{}
+\ifthenelse{\equal{\pt@area}{A}\AND\equal{\pt@subproject}{03}}{\renewcommand{\pt@logoA}{logos/IRS.pdf}}{}
+\ifthenelse{\equal{\pt@area}{A}\AND\equal{\pt@subproject}{04}}{\renewcommand{\pt@logoA}{logos/IRS.pdf}}{}
+\ifthenelse{\equal{\pt@area}{A}\AND\equal{\pt@subproject}{05}}{\renewcommand{\pt@logoA}{logos/IFR.png}}{}
+\ifthenelse{\equal{\pt@area}{A}\AND\equal{\pt@subproject}{06}}{\renewcommand{\pt@logoA}{logos/IRS.pdf}}{}
+% -------- Area B --------
+\ifthenelse{\equal{\pt@area}{B}\AND\equal{\pt@subproject}{01}}{\renewcommand{\pt@logoA}{logos/IRS.pdf}}{}
+\ifthenelse{\equal{\pt@area}{B}\AND\equal{\pt@subproject}{03}}{\renewcommand{\pt@logoA}{logos/IWS.png}}{}
+\ifthenelse{\equal{\pt@area}{B}\AND\equal{\pt@subproject}{04}}{\renewcommand{\pt@logoA}{logos/ITLR.png}}{}
+\ifthenelse{\equal{\pt@area}{B}\AND\equal{\pt@subproject}{05}}{\renewcommand{\pt@logoA}{logos/IPV.png}}{}
+\ifthenelse{\equal{\pt@area}{B}\AND\equal{\pt@subproject}{06}}{\renewcommand{\pt@logoA}{logos/BartzGroup.pdf}}{}
+% -------- Area C --------
+\ifthenelse{\equal{\pt@area}{C}\AND\equal{\pt@subproject}{01}}{\renewcommand{\pt@logoA}{logos/IRS.pdf}}{}
+\ifthenelse{\equal{\pt@area}{C}\AND\equal{\pt@subproject}{02}}{\renewcommand{\pt@logoA}{logos/DLR.pdf}}{}
+\ifthenelse{\equal{\pt@area}{C}\AND\equal{\pt@subproject}{03}}{\renewcommand{\pt@logoA}{logos/ILH.png}}{}
+\ifthenelse{\equal{\pt@area}{C}\AND\equal{\pt@subproject}{04}}{\renewcommand{\pt@logoA}{logos/ILS.png}}{}
+\ifthenelse{\equal{\pt@area}{C}\AND\equal{\pt@subproject}{05}}{\renewcommand{\pt@logoA}{logos/INS.png}}{}
+\ifthenelse{\equal{\pt@area}{C}\AND\equal{\pt@subproject}{06}}{\renewcommand{\pt@logoA}{logos/GIS.png}}{}
+% -------- Support Project --------
+\ifthenelse{\equal{\pt@area}{INF}}{\renewcommand{\pt@logoA}{logos/IWS.png}}{}
+\ifthenelse{\equal{\pt@area}{OE}}{\renewcommand{\pt@logoA}{logos/IRS.pdf}}{}
+\ifthenelse{\equal{\pt@area}{Z}}{\renewcommand{\pt@logoA}{logos/IRS.pdf}}{}
+% Public alias
+\newcommand{\InstituteLogoOne}{\pt@logoA}
+
+% --- Secondary logo (\pt@logoB) — empty means no second logo ---
+% Uses \def (not \newcommand) so that \ifx\pt@logoB\empty works correctly.
+\def\pt@logoB{}% default: no secondary logo
+\ifthenelse{\equal{\pt@area}{A}\AND\equal{\pt@subproject}{01}}{\def\pt@logoB{logos/FMQ.png}}{}
+\ifthenelse{\equal{\pt@area}{A}\AND\equal{\pt@subproject}{02}}{\def\pt@logoB{logos/IRS.pdf}}{}
+\ifthenelse{\equal{\pt@area}{B}\AND\equal{\pt@subproject}{03}}{\def\pt@logoB{logos/IRS.pdf}}{}
+\ifthenelse{\equal{\pt@area}{INF}}{\renewcommand{\pt@logoA}{logos/IRS.pdf}}{}
+\newcommand{\InstituteLogoTwo}{\pt@logoB}% public alias
+
+% --- Predefined poster titles per project/subproject ------------------------
+% Add a line for each subproject: \equal{area}{X} AND \equal{sub}{YY}
+% The fallback at the end uses whatever \title{} was set in the .tex.
+\newcommand{\PosterTitle}{%
+  % -------- Area A --------
+  \ifthenelse{\equal{\pt@area}{A}}{%
+    \ifthenelse{\equal{\pt@subproject}{01}}{%
+      Gas-Surface Interactions Investigated by\\Atomistic Simulations%
+    }{\ifthenelse{\equal{\pt@subproject}{02}}{%
+      Aerodynamic Coefficients in Rarefied\\Flows: From Micro to Macro Scales%
+    }{\ifthenelse{\equal{\pt@subproject}{03}}{%
+      Characterisation of Materials under\\Hyperthermal Conditions%
+    }{\ifthenelse{\equal{\pt@subproject}{04}}{%
+      Diagnostic Tools for Atomic Oxygen%
+    }{\ifthenelse{\equal{\pt@subproject}{05}}{%
+      Aerodynamic Attitude Control in VLEO:\\Design and Verification%
+    }{\ifthenelse{\equal{\pt@subproject}{06}}{%
+      Aerodynamic Orbit Control in VLEO:\\Planning and Optimisation%
+    }{%
+      \inserttitle%
+    }}}}}}%
+  }{%
+  % -------- Area B --------
+  \ifthenelse{\equal{\pt@area}{B}}{%
+    \ifthenelse{\equal{\pt@subproject}{01}}{%
+      Atmosphere-Breathing Electric\\Propulsion Technologies%
+    }{\ifthenelse{\equal{\pt@subproject}{03}}{%
+      Porous Structures as Atomic Oxygen Trap%
+    }{\ifthenelse{\equal{\pt@subproject}{04}}{%
+      Drag Mitigation and Attitude Control\\throughThermal Radiation%
+    }{\ifthenelse{\equal{\pt@subproject}{05}}{%
+      Large-Scale and Flexible Perovskite\\Solar Cells for VLEO Applications%
+    }{\ifthenelse{\equal{\pt@subproject}{06}}{%
+      Integrated Quantum Technologies for\\Satellite Applications%
+    }{%
+      \inserttitle%
+    }}}}}%
+  }{%
+  % -------- Area C --------
+  \ifthenelse{\equal{\pt@area}{C}}{%
+    \ifthenelse{\equal{\pt@subproject}{01}}{%
+      Fundamentals of VLEO Satellite Operations%
+    }{\ifthenelse{\equal{\pt@subproject}{02}}{%
+      Laser Ranging and Laser-Based\\Attitude Determination%
+    }{\ifthenelse{\equal{\pt@subproject}{03}}{%
+      Extremely High Data Rate Communications%
+    }{\ifthenelse{\equal{\pt@subproject}{04}}{%
+      Models and Methods for a Self-Organising\\Distributed Computing Platform\\for Satellite Constellations%
+    }{\ifthenelse{\equal{\pt@subproject}{05}}{%
+      Novel Concepts for Ranging, Precise Orbit\\and Attitude Determination of\\VLEO Satellites%
+    }{\ifthenelse{\equal{\pt@subproject}{06}}{%
+      High-Fidelity Earth Gravity Field Mapping\\from VLEO Constellations%
+    }{%
+      \inserttitle%
+    }}}}}}%
+  }{%
+  % -------- INF --------
+  \ifthenelse{\equal{\pt@area}{INF}}{%
+      Software and Data Management\\Satellite Applications%
+      \inserttitle%
+  }{%  
+  % -------- OE --------
+  \ifthenelse{\equal{\pt@area}{OE}}{%
+      Public and Educational Outreach%
+      \inserttitle%
+  }{%    
+   % -------- Z --------
+  \ifthenelse{\equal{\pt@area}{Z}}{%
+      Central Coordination%
+      \inserttitle%
+  }{%     
+    \inserttitle%
+  }}}}}}%
+}
+
+
+\newcommand{\ProjectLeader}{%
+  % -------- Area A --------
+  \ifthenelse{\equal{\pt@area}{A}}{
+    \ifthenelse{\equal{\pt@subproject}{01}}{%
+      Johannes Kästner, Johannes Roth%
+    }{\ifthenelse{\equal{\pt@subproject}{02}}{%
+      Andrea Beck, Marcel Pfeiffer%
+    }{\ifthenelse{\equal{\pt@subproject}{03}}{%
+      Georg Herdrich, Stefanos Fasoulas%
+    }{\ifthenelse{\equal{\pt@subproject}{04}}{%
+      Stefan Löhle%
+    }{\ifthenelse{\equal{\pt@subproject}{05}}{%
+      Torbjørn Cunis, Walter Fichter%
+    }{\ifthenelse{\equal{\pt@subproject}{06}}{%
+      Stefanos Fasoulas%
+    }{ }
+	}}}}}%
+  }{%
+  % -------- Area B --------
+  \ifthenelse{\equal{\pt@area}{B}}{
+    \ifthenelse{\equal{\pt@subproject}{01}}{%
+      Georg Herdrich%
+    }{\ifthenelse{\equal{\pt@subproject}{03}}{%
+      Bernd Flemisch, Marcel Pfeiffer, Martin Schneider%
+    }{\ifthenelse{\equal{\pt@subproject}{04}}{%
+      Grazia Lamanna, Rico Poser%
+    }{\ifthenelse{\equal{\pt@subproject}{05}}{%
+      Stephanie Essig, Michael Saliba%
+    }{\ifthenelse{\equal{\pt@subproject}{06}}{%
+      Stefanie Barz%
+    }{ }
+	}}}}%
+  }{%
+  % -------- Area C --------
+  \ifthenelse{\equal{\pt@area}{C}}{
+    \ifthenelse{\equal{\pt@subproject}{01}}{%
+      Sabine Klinkner%
+    }{\ifthenelse{\equal{\pt@subproject}{02}}{%
+      Gerd Wagner, Thomas Dekorsy%
+    }{\ifthenelse{\equal{\pt@subproject}{03}}{%
+      Ingmar Kallfass%
+    }{\ifthenelse{\equal{\pt@subproject}{04}}{%
+      Björn Annighöfer%
+    }{\ifthenelse{\equal{\pt@subproject}{05}}{%
+      Thomas Hobiger%
+    }{\ifthenelse{\equal{\pt@subproject}{06}}{%
+      Nicolaas Sneeuw%
+    }{ }
+	}}}}}%
+  }{%
+  % -------- INF --------
+  \ifthenelse{\equal{\pt@area}{INF}}{%
+    Bernd Flemisch, Stefan L{\"o}hle%
+  }{%  
+  % -------- OE --------
+  \ifthenelse{\equal{\pt@area}{OE}}{%
+    Sabine Klinkner, Stefanos Fasoulas%
+  }{%  
+  % -------- Z --------
+  \ifthenelse{\equal{\pt@area}{Z}}{%
+    Stefanos Fasoulas, Sabine Klinkner%
+  }}}}}}%
+}
+
+
+% --- Named colors (base palette) ---------------------------------------------
+\definecolor{atlasRed}{HTML}{BA4A32}
+\definecolor{atlasRedMuted}{HTML}{F2DCD7}
+\definecolor{atlasGreen}{HTML}{417501}
+\definecolor{atlasGreenMuted}{HTML}{CFDCBF}
+\definecolor{atlasBlue}{HTML}{074D6D}
+\definecolor{atlasBlueMuted}{HTML}{C1D2DA}
+\definecolor{atlasGrey}{HTML}{808080}
+\definecolor{atlasGreyMuted}{HTML}{C5C5C5}
+\definecolor{atlasGreyDark}{HTML}{222A35}
+
+% --- Theme aliases derived from the chosen project area ----------------------
+\ifthenelse{\equal{\pt@area}{A}}{%
+  \colorlet{PrimaryColor}{atlasRed}%
+  \colorlet{PrimaryMuted}{atlasRedMuted}%
+}{}%
+\ifthenelse{\equal{\pt@area}{B}}{%
+  \colorlet{PrimaryColor}{atlasGreen}%
+  \colorlet{PrimaryMuted}{atlasGreenMuted}%
+}{}%
+\ifthenelse{\equal{\pt@area}{C}}{%
+  \colorlet{PrimaryColor}{atlasBlue}%
+  \colorlet{PrimaryMuted}{atlasBlueMuted}%
+}{}%
+\ifthenelse{\equal{\pt@area}{INF}}{%
+  \colorlet{PrimaryColor}{atlasGrey}%
+  \colorlet{PrimaryMuted}{atlasGreyMuted}%
+}{}%
+\ifthenelse{\equal{\pt@area}{OE}}{%
+  \colorlet{PrimaryColor}{atlasGrey}%
+  \colorlet{PrimaryMuted}{atlasGreyMuted}%
+}{}%
+\ifthenelse{\equal{\pt@area}{Z}}{%
+  \colorlet{PrimaryColor}{atlasGrey}%
+  \colorlet{PrimaryMuted}{atlasGreyMuted}%
+}{}%
+
+
+% --- Itemize bullet: small filled square in the theme's primary colour -------
+\setbeamertemplate{itemize item}{\color{PrimaryColor}\rule[0.35ex]{0.9ex}{0.9ex}}
+\setbeamertemplate{itemize subitem}{\color{PrimaryColor}\rule[0.35ex]{0.7ex}{0.7ex}}
+\setbeamertemplate{itemize subsubitem}{\color{PrimaryColor}\rule[0.35ex]{0.5ex}{0.5ex}}
+
+% =============================================================================
+% Layout constants
+% Change \BlockGap to rescale all gutters and margins uniformly.
+% =============================================================================
+\newlength{\BlockGap}           % uniform gap: page margins + inter-block spaces
+\setlength{\BlockGap}{15mm}
+
+\newlength{\TopGap}             % gap between header bar bottom and row 1
+\setlength{\TopGap}{25mm}
+
+% -- Block inner padding ------------------------------
+\newlength{\BlockPad}           % inner padding between block edge and content
+\setlength{\BlockPad}{15mm}
+
+\newlength{\ContentTopSkip}     % vertical distance from block top to minipage
+\setlength{\ContentTopSkip}{44mm}
+
+% -- Column widths (auto-derived) ---------------------------------------------
+\newlength{\ColWidthHalf}       % each column in two-column rows
+\setlength{\ColWidthHalf}{\dimexpr(\paperwidth - 3\BlockGap)/2\relax}
+
+\newlength{\ColWidthFull}       % full-width block (Project plan)
+\setlength{\ColWidthFull}{\dimexpr\paperwidth - 2\BlockGap\relax}
+
+% Row 1: Background 60%, Objectives 40% of available width
+\newlength{\RowOneAvail}
+\setlength{\RowOneAvail}{\dimexpr\paperwidth - 3\BlockGap\relax}
+
+\newlength{\ColWidthBackground}
+\setlength{\ColWidthBackground}{\dimexpr6\RowOneAvail/10\relax}
+
+\newlength{\ColWidthObjectives}
+\setlength{\ColWidthObjectives}{\dimexpr4\RowOneAvail/10\relax}
+
+% Row 2: Methods 50%, Collaborations 50% of available width
+\newlength{\RowTwoAvail}
+\setlength{\RowTwoAvail}{\dimexpr\paperwidth - 3\BlockGap\relax}
+
+\newlength{\ColWidthMethods}
+\setlength{\ColWidthMethods}{\dimexpr5\RowTwoAvail/10\relax}
+
+\newlength{\ColWidthCollaborations}
+\setlength{\ColWidthCollaborations}{\dimexpr5\RowTwoAvail/10\relax}
+
+% -- Block minipage dimensions ------------------------------
+\newlength{\MiniWidthHalf}
+\setlength{\MiniWidthHalf}{\dimexpr\ColWidthHalf - 2\BlockPad\relax}
+
+\newlength{\MiniWidthFull}
+\setlength{\MiniWidthFull}{\dimexpr\ColWidthFull - 2\BlockPad\relax}
+
+\newlength{\MiniWidthBackground}
+\setlength{\MiniWidthBackground}{\dimexpr\ColWidthBackground - 2\BlockPad\relax}
+
+\newlength{\MiniWidthObjectives}
+\setlength{\MiniWidthObjectives}{\dimexpr\ColWidthObjectives - 2\BlockPad\relax}
+
+\newlength{\MiniWidthMethods}
+\setlength{\MiniWidthMethods}{\dimexpr\ColWidthMethods - 2\BlockPad\relax}
+
+\newlength{\MiniWidthCollaborations}
+\setlength{\MiniWidthCollaborations}{\dimexpr\ColWidthCollaborations - 2\BlockPad\relax}
+
+\newlength{\TotalHeightRows}
+\setlength{\TotalHeightRows}{888.54mm}
+
+\newlength{\HeightRowOne}
+\setlength{\HeightRowOne}{\dimexpr2\TotalHeightRows/10\relax}
+
+\newlength{\HeightRowTwo}
+\setlength{\HeightRowTwo}{\dimexpr3\TotalHeightRows/10\relax}
+
+\newlength{\HeightRowThree}
+\setlength{\HeightRowThree}{\dimexpr5\TotalHeightRows/10\relax}
+
+\newlength{\MiniHeightRowOne}   % row 1 block height: 258.440mm
+%\setlength{\MiniHeightRowOne}{\dimexpr 258.440mm - \ContentTopSkip - \BlockPad\relax}
+\setlength{\MiniHeightRowOne}{\dimexpr \HeightRowOne - \ContentTopSkip - \BlockPad\relax}
+
+\newlength{\MiniHeightRowTwo}   % row 2 block height: 289.310mm
+%\setlength{\MiniHeightRowTwo}{\dimexpr 289.310mm - \ContentTopSkip - \BlockPad\relax}
+\setlength{\MiniHeightRowTwo}{\dimexpr \HeightRowTwo - \ContentTopSkip - \BlockPad\relax}
+
+\newlength{\MiniHeightRowThree} % row 3 block height: 340.790mm
+%\setlength{\MiniHeightRowThree}{\dimexpr 340.790mm - \ContentTopSkip - \BlockPad\relax}
+\setlength{\MiniHeightRowThree}{\dimexpr \HeightRowThree - \ContentTopSkip - \BlockPad\relax}
+
+% -- Row y-positions (distance from page north) --------------------------------
+\newlength{\RowOneY}
+\setlength{\RowOneY}{\dimexpr 161.960mm + \TopGap\relax}
+
+\newlength{\RowTwoY}
+%\setlength{\RowTwoY}{\dimexpr\RowOneY + 258.440mm + \BlockGap\relax}
+\setlength{\RowTwoY}{\dimexpr\RowOneY + \HeightRowOne + \BlockGap\relax}
+
+\newlength{\RowThreeY}
+%\setlength{\RowThreeY}{\dimexpr\RowTwoY + 289.310mm + \BlockGap\relax}
+\setlength{\RowThreeY}{\dimexpr\RowTwoY + \HeightRowTwo + \BlockGap\relax}
+
+% -- Right-column x-start positions -------------------------------------------
+\newlength{\ColRightX}
+\setlength{\ColRightX}{\dimexpr\BlockGap + \ColWidthHalf + \BlockGap\relax}
+
+\newlength{\ObjectivesX}
+\setlength{\ObjectivesX}{\dimexpr\BlockGap + \ColWidthBackground + \BlockGap\relax}
+
+\newlength{\CollaborationsX}
+\setlength{\CollaborationsX}{\dimexpr\BlockGap + \ColWidthMethods + \BlockGap\relax}
+
+
+% =============================================================================
+% Content hooks
+% User overrides these in poster.tex with \renewcommand.
+% The content is placed INSIDE the minipage; the wrapper is the template's job.
+% =============================================================================
+\newcommand{\PosterDate}{}
+
+\newcommand{\BackgroundContent}{}
+\newcommand{\ObjectivesContent}{}
+\newcommand{\MethodsContent}{}
+\newcommand{\CollaborationsContent}{}
+\newcommand{\ResearchContent}{}
+
+% =============================================================================
+% \makemyposter
+% Renders the full poster layout. Call inside \begin{frame}[t]...\end{frame}.
+% =============================================================================
+\newcommand{\makemyposter}{%
+    %
+    % --- Header bar ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \fill[PrimaryColor]
+        ([yshift=-44.700mm]current page.north west)
+        rectangle ([yshift=-161.96mm]current page.north east);
+    \end{tikzpicture}%
+    %
+    % --- ATLAS logo ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[anchor=center] (atlas)
+        at ([xshift=81.625mm, yshift=-101.515mm]current page.north west)
+        {\includegraphics[width=150mm]{logos/ATLAS_Logo.png}};
+      \draw[line width=5mm, PrimaryColor] (atlas.center) circle[radius=75.145mm];
+    \end{tikzpicture}%
+    %
+    % --- Subproject logo ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \begin{scope}
+        \clip ([xshift=759.475mm, yshift=-101.515mm]current page.north west)
+          circle[radius=73.145mm];
+        \node[anchor=center]
+          at ([xshift=759.475mm, yshift=-101.515mm]current page.north west)
+          {\includegraphics[width=145mm]{logos/\ProjectArea\SubProject_noring.pdf}};
+      \end{scope}
+      \draw[line width=5mm, PrimaryColor]
+        ([xshift=759.475mm, yshift=-101.515mm]current page.north west)
+        circle[radius=75.145mm];
+    \end{tikzpicture}%
+    %
+    % --- Project area badge ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \draw[line width=2.5mm, PrimaryMuted, fill=PrimaryColor]
+        ([xshift=670.030mm, yshift=-141.520mm]current page.north west)
+        circle[radius=34.985mm];
+      \node[anchor=center, text=white, font=\bfseries\fontsize{90pt}{90pt}\selectfont]
+        at ([xshift=670.030mm, yshift=-141.520mm]current page.north west)
+        {\ProjectArea\SubProject};
+    \end{tikzpicture}%
+    %
+    % --- Poster title (uses \title{} set in the .tex) ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[anchor=center, align=center, text=white, font=\bfseries\fontsize{66pt}{66pt}\selectfont] (title)
+       % at ([xshift=407.053mm, yshift=-95.054mm]current page.north west)
+	at ([xshift=407.053mm, yshift=-103.35mm]current page.north west)
+        {\PosterTitle};
+    \end{tikzpicture}%
+    %
+    % -- Date (uses \PosterDate{} set in the .tex) ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[anchor=center, align=center, text=white, font=\fontsize{36pt}{36pt}\selectfont]
+      at ([yshift=1.4cm]title.north)
+      {\textit{\PosterDate}};
+    \end{tikzpicture}%
+    %
+    % -- Author names (uses \author{} set in the .tex) ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[anchor=center, align=center, text=white, font=\fontsize{36pt}{36pt}\selectfont]
+      at ([yshift=-1.4cm]title.south)
+      {\insertauthor,\ProjectLeader};
+    \end{tikzpicture}%
+    %
+    % --- BACKGROUND block ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \coordinate (start) at ([xshift=\BlockGap, yshift=-\RowOneY]current page.north west);
+      \fill[white, rounded corners=13mm]
+        (start) rectangle ([xshift=\ColWidthBackground, yshift=-\HeightRowOne]start);
+      \node[anchor=north west, text=black, font=\bfseries\fontsize{54pt}{54pt}\selectfont, inner sep=0]
+        at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Background};
+      \node[anchor=north west, inner sep=0, font=\fontsize{36pt}{36pt}\selectfont]
+        at ([xshift=\BlockPad, yshift=-\ContentTopSkip]start)
+        {\begin{minipage}[t][\MiniHeightRowOne][t]{\MiniWidthBackground}%
+          \BackgroundContent%
+        \end{minipage}};
+    \end{tikzpicture}%
+    %
+    % --- OBJECTIVES block ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \coordinate (start) at ([xshift=\ObjectivesX, yshift=-\RowOneY]current page.north west);
+      \fill[white, rounded corners=13mm]
+        (start) rectangle ([xshift=\ColWidthObjectives, yshift=-\HeightRowOne]start);
+      \node[anchor=north west, text=black, font=\bfseries\fontsize{54pt}{54pt}\selectfont, inner sep=0]
+        at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Objectives};
+      \node[anchor=north west, inner sep=0, font=\fontsize{36pt}{36pt}\selectfont]
+        at ([xshift=\BlockPad, yshift=-\ContentTopSkip]start)
+        {\begin{minipage}[t][\MiniHeightRowOne][t]{\MiniWidthObjectives}%
+          \ObjectivesContent%
+        \end{minipage}};
+    \end{tikzpicture}%
+    %
+    % --- METHODS block ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \coordinate (start) at ([xshift=\BlockGap, yshift=-\RowTwoY]current page.north west);
+      \fill[white, rounded corners=13mm]
+%        (start) rectangle ([xshift=\ColWidthCollaborations, yshift=-289.310mm]start);
+        (start) rectangle ([xshift=\ColWidthMethods, yshift=-\HeightRowTwo]start);
+      \node[anchor=north west, text=black, font=\bfseries\fontsize{54pt}{54pt}\selectfont, inner sep=0]
+        at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Methods};
+      \node[anchor=north west, inner sep=0, font=\fontsize{36pt}{36pt}\selectfont]
+        at ([xshift=\BlockPad, yshift=-\ContentTopSkip]start)
+        {\begin{minipage}[t][\MiniHeightRowTwo][t]{\MiniWidthMethods}%
+          \MethodsContent%
+        \end{minipage}};
+    \end{tikzpicture}%
+    %
+    % --- COLLABORATIONS block ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \coordinate (start) at ([xshift=\CollaborationsX, yshift=-\RowTwoY]current page.north west);
+      \fill[white, rounded corners=13mm]
+%        (start) rectangle ([xshift=\ColWidthOutlook, yshift=-289.310mm]start);
+        (start) rectangle ([xshift=\ColWidthCollaborations, yshift=-\HeightRowTwo]start);
+      \node[anchor=north west, text=black, font=\bfseries\fontsize{54pt}{54pt}\selectfont, inner sep=0]
+        at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Collaborations};
+      \node[anchor=north west, inner sep=0, font=\fontsize{36pt}{36pt}\selectfont]
+        at ([xshift=\BlockPad, yshift=-\ContentTopSkip]start)
+        {\begin{minipage}[t][\MiniHeightRowTwo][t]{\MiniWidthCollaborations}%
+          \CollaborationsContent%
+        \end{minipage}};
+    \end{tikzpicture}%
+    %
+    % --- RESEARCH block ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \coordinate (start) at ([xshift=\BlockGap, yshift=-\RowThreeY]current page.north west);
+      \fill[white, rounded corners=13mm]
+ %       (start) rectangle ([xshift=\ColWidthFull, yshift=-340.790mm]start);
+       (start) rectangle ([xshift=\ColWidthFull, yshift=-\HeightRowThree]start);
+      \node[anchor=north west, text=black, font=\bfseries\fontsize{54pt}{54pt}\selectfont, inner sep=0]
+        at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Research Highlights};
+      \node[anchor=north west, inner sep=0, font=\fontsize{36pt}{36pt}\selectfont]
+        at ([xshift=\BlockPad, yshift=-\ContentTopSkip]start)
+        {\begin{minipage}[t][\MiniHeightRowThree][t]{\MiniWidthFull}%
+          \ResearchContent%
+        \end{minipage}};
+    \end{tikzpicture}%
+    %
+    % --- Footer ---
+    % Primary institute logo (always shown)
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[anchor=west, inner sep=0pt] (InstituteA)
+        at ([xshift=\BlockGap, yshift=-1144.080mm]current page.north west)
+        {\includegraphics[height=40mm]{\pt@logoA}};
+    \end{tikzpicture}%
+    %
+    % Secondary institute logo (only rendered when \InstituteLogoTwo is non-empty)
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[anchor=south west, inner sep=0pt]
+        at ([xshift=20mm]InstituteA.south east)
+        {\ifx\pt@logoB\empty\else\includegraphics[height=40mm]{\pt@logoB}\fi};
+    \end{tikzpicture}%
+    %
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[anchor=center, align=center, text=black,
+            font=\fontsize{24pt}{30pt}\selectfont, inner sep=0]
+        at ([xshift=421.113mm, yshift=-1145.168mm]current page.north west)
+        {Funded by the \textit{Deutsche Forschungsgemeinschaft}\\
+         Project number 516238647 $-$ SFB1667/1};
+    \end{tikzpicture}%
+    %
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[anchor=center]
+        at ([xshift=550.530mm, yshift=-1144.080mm]current page.north west)
+        {\includegraphics[width=39.740mm]{logos/DFG_qr.pdf}};
+    \end{tikzpicture}%
+    %
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[anchor=center]
+        at ([xshift=690.775mm, yshift=-1144.475mm]current page.north west)
+        {\includegraphics[height=47mm]{logos/uni_stuttgart.pdf}};
+    \end{tikzpicture}%
+}% end \makemyposter

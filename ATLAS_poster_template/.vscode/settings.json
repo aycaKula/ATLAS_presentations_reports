@@ -1,0 +1,63 @@
+{   "latex-workshop.latex.build.forceRecipeUsage": false,
+    "latex-workshop.synctex.afterBuild.enabled": true,
+    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.synctex.synctexjs.enabled": true,
+    "latex-workshop.latex.tools": [
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": [
+                "--shell-escape",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ]
+        },
+        {
+            "name": "lualatex",
+            "command": "lualatex",
+            "args": [
+                "--shell-escape",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ]
+        },
+        {
+            "name": "bibtex",
+            "command": "bibtex",
+            "args": ["%DOCFILE%"]
+        },
+        {
+            "name": "makeglossaries",
+            "command": "makeglossaries",
+            "args": ["%DOCFILE%"]
+        }
+    ],
+    "latex-workshop.latex.recipe.default": "lualatex",
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "pdflatex + bibtex",
+            "tools": ["pdflatex", "bibtex", "pdflatex", "pdflatex"]
+        },
+        {
+            "name": "pdflatex",
+            "tools": ["pdflatex"]
+        },
+        {
+            "name": "lualatex",
+            "tools": ["lualatex"]
+        },
+        {
+            "name": "pdflatex + bibtex + makeglossaries + pdflatex ×2",
+            "tools": [ "pdflatex", "bibtex", "makeglossaries", "pdflatex", "pdflatex" ]
+        },
+        {
+            "name": "lualatex + bibtex + makeglossaries + lualatex ×2",
+            "tools": [ "lualatex", "bibtex", "makeglossaries", "lualatex", "lualatex" ]
+        }
+    ],
+    "latex-workshop.latex.autoBuild.run": "onSave",
+}
