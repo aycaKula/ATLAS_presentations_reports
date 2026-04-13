@@ -1,0 +1,78 @@
+% !TeX program = lualatex
+
+\documentclass[10pt,aspectratio=169]{beamer}
+%\setbeameroption{show notes}
+
+\useinnertheme{rectangles}
+\useoutertheme{infolines}
+
+% Language
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\selectlanguage{english}
+\setbeamerfont{footnote}{size=\scriptsize}
+
+\usepackage{comment}
+\usepackage{xstring}
+\usepackage{epstopdf}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\graphicspath{{figures/}}
+\usepackage{booktabs}
+\usepackage[exponent-product = \cdot]{siunitx}
+\usepackage{multirow}
+\usepackage{lmodern}
+\usepackage{caption}
+\usepackage{fontawesome5} % for icons
+
+\DeclareMathOperator\erf{erf} % errorfunction operator
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{calc}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest,/pgf/number format/.cd,1000 sep={}}
+\pgfplotsset{colormap={modrainbow}{rgb255(0cm)=(0,0,255); rgb255(1cm)=(0,255,255); rgb255(2cm)=(0,255,0);
+rgb255(3cm)=(255,255,0); rgb255(4cm)=(255,0,0)}}
+\usepackage{amssymb}
+
+\usepackage[ATLASline]{beamerthemeuniS} % ATLASLine (plots: Advancing Technologies of Low-Altitude Satellites) or noATLASline
+\mode<presentation>{\usetheme{uniS}}
+
+%%% define a few pictures used throughout the slides %%%
+% Title image
+\pgfdeclareimage[height=0.7\paperheight]{titleimage}{figures/logos/C04.pdf}
+% Uni logo CRC ATLAS for title page
+\pgfdeclareimage[height=1cm]{unilogo}{figures/logos/UniStuttgart_CRC_ATLAS.pdf}
+% Uni logo CRC ATLAS final slide
+\pgfdeclareimage[height=1cm]{unilogow}{figures/logos/UniStuttgart_CRC_ATLAS_white.pdf}
+
+%%% Title page %%%
+% Title
+\title[Self Organising Constellations]{Models and Methods for a Self-Organising Distributed Computing Platform for Satellite Constellations}
+
+% author info: presenter (true|false), name, institute, department, email, tel, picture, vCard (optional)
+\authorinfo{true}{Ayca Kula Arslan}{Institute of Aircraft Systems}{Aerospace Engineering and Geodesy}{ayca.kula@ils.uni-stuttgart.de}{+49 711 685 69539}{}{}
+\authorinfo{false}{Prof. Dr. Björn Annighöfer}{Institute of Aircraft Systems}{Aerospace Engineering and Geodesy}{bjoern.annighofer@ils.uni-stuttgart.de}{+49 711 685 ?????}{}{}
+
+% Date/Events
+\date{April 9, 2026}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Title page %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[noframenumbering,plain]
+\titlepage
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Content %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Example}
+\include{sections/example/example.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% final slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\finalslide
+
+\end{document}

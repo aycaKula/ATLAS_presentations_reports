@@ -1,0 +1,846 @@
+\makeatletter
+\def\beamerrightmargin{\dimexpr\Gm@rmargin\relax}
+\makeatother
+
+% Flags
+\newif\ifshowATLASline
+\DeclareOption{ATLASline}{\showATLASlinetrue}
+\DeclareOption{noATLASline}{\showATLASlinefalse}
+\ExecuteOptions{ATLASline} % default = ATLASline
+\ProcessOptions\relax
+
+\mode<presentation>
+
+\usecolortheme{uniS}
+
+% Required packages for enhanced author system
+\RequirePackage{ifthen}
+\RequirePackage{xparse}
+
+\setbeamersize{text margin left=0.5cm}
+\setbeamersize{text margin right=0.5cm}
+
+\addtobeamertemplate{frametitle}{\vspace*{0cm}}{\vspace*{-0.8cm}}
+
+% Enhanced author management system with institute numbering
+\newcounter{authorcount}
+\setcounter{authorcount}{0}
+\newcounter{institutecount}
+\setcounter{institutecount}{0}
+
+% Store all author information and institute mapping
+\newcommand{\allauthors}{}
+\newcommand{\allinstitutes}{}
+\newcommand{\presenterinfo}{}
+
+% Enhanced authorinfo command
+\NewDocumentCommand{\authorinfo}{m m m m m m m m}{
+  \stepcounter{authorcount}
+
+  % Simple institute assignment without loop
+  \xdef\currentinstnum{0}
+
+  % Check manually for first few institutes (covers most use cases)
+  \edef\newinst{#3}
+
+  % Debug: show current state
+  \typeout{DEBUG: Processing institute "#3"}
+  \typeout{DEBUG: Current institute count: \theinstitutecount}
+
+  % Check institute 1
+  \ifnum\theinstitutecount>0
+    \expandafter\edef\expandafter\tempinst\expandafter{\csname institute@1\endcsname}
+    \typeout{DEBUG: Comparing with institute 1: "\tempinst"}
+    \ifx\tempinst\newinst
+      \xdef\currentinstnum{1}
+      \typeout{DEBUG: Found match at institute 1}
+    \fi
+  \fi
+
+  % Check institute 2
+  \ifnum\currentinstnum=0
+    \ifnum\theinstitutecount>1
+      \expandafter\edef\expandafter\tempinst\expandafter{\csname institute@2\endcsname}
+      \typeout{DEBUG: Comparing with institute 2: "\tempinst"}
+      \ifx\tempinst\newinst
+        \xdef\currentinstnum{2}
+        \typeout{DEBUG: Found match at institute 2}
+      \fi
+    \fi
+  \fi
+
+  % Check institute 3
+  \ifnum\currentinstnum=0
+    \ifnum\theinstitutecount>2
+      \expandafter\edef\expandafter\tempinst\expandafter{\csname institute@3\endcsname}
+      \typeout{DEBUG: Comparing with institute 3: "\tempinst"}
+      \ifx\tempinst\newinst
+        \xdef\currentinstnum{3}
+        \typeout{DEBUG: Found match at institute 3}
+      \fi
+    \fi
+  \fi
+
+  % Check institute 4
+  \ifnum\currentinstnum=0
+    \ifnum\theinstitutecount>3
+      \expandafter\edef\expandafter\tempinst\expandafter{\csname institute@4\endcsname}
+      \typeout{DEBUG: Comparing with institute 4: "\tempinst"}
+      \ifx\tempinst\newinst
+        \xdef\currentinstnum{4}
+        \typeout{DEBUG: Found match at institute 4}
+      \fi
+    \fi
+  \fi
+
+  % If not found, add as new institute
+  \ifnum\currentinstnum=0
+    \stepcounter{institutecount}
+    \expandafter\xdef\csname institute@\theinstitutecount\endcsname{#3}
+    \xdef\currentinstnum{\theinstitutecount}
+    \typeout{DEBUG: Creating new institute \theinstitutecount: "#3"}
+  \fi
+
+  \typeout{DEBUG: Final assignment - institute number: \currentinstnum}
+
+  % Store this author's information
+  \expandafter\gdef\csname author@\theauthorcount @presenter\endcsname{#1}
+  \expandafter\gdef\csname author@\theauthorcount @name\endcsname{#2}
+  \expandafter\gdef\csname author@\theauthorcount @institute\endcsname{#3}
+  \expandafter\xdef\csname author@\theauthorcount @institutenumber\endcsname{\currentinstnum}
+  \typeout{DEBUG: Stored author \theauthorcount (#2) with institute number \currentinstnum}
+  \expandafter\gdef\csname author@\theauthorcount @department\endcsname{#4}
+  \expandafter\gdef\csname author@\theauthorcount @email\endcsname{#5}
+  \expandafter\gdef\csname author@\theauthorcount @telephone\endcsname{#6}
+  \expandafter\gdef\csname author@\theauthorcount @picture\endcsname{#7}
+  \expandafter\gdef\csname author@\theauthorcount @qrcode\endcsname{#8}
+
+  % If this is the presenter, store presenter info
+  \ifthenelse{\equal{#1}{true}}{
+    \gdef\presenterinfo{\theauthorcount}
+  }{}
+}
+
+% Function to get all author names with institute numbers
+\newcommand{\getallauthornameswithinstnumbers}{
+  \ifnum\value{authorcount}>0
+    \!\!\!\!\getauthornamewithinstnumber{1}\!\!%
+    \ifnum\value{authorcount}>1
+      \newcount\tempcounter
+      \tempcounter=2
+      \loop
+        \ifnum\tempcounter>\value{authorcount}
+        \else
+          ,\!\!\getauthornamewithinstnumber{\the\tempcounter}\!\!%
+          \advance\tempcounter by 1
+      \repeat
+    \fi
+  \fi
+}
+
+% Helper function to get single author name with institute number
+\newcommand{\getauthornamewithinstnumber}[1]{
+  \typeout{DEBUG: Displaying author #1 - name: \csname author@#1@name\endcsname, institute number: \csname author@#1@institutenumber\endcsname}
+  % Check if this author is a presenter and underline if true
+  \edef\checkpresenter{\csname author@#1@presenter\endcsname}%
+  \ifthenelse{\equal{\checkpresenter}{true}}{%
+    \underline{\csname author@#1@name\endcsname}$^{\csname author@#1@institutenumber\endcsname}$%
+  }{%
+    \csname author@#1@name\endcsname$^{\csname author@#1@institutenumber\endcsname}$%
+  }%
+}
+
+% Function to get all institutes with numbers
+\newcommand{\getallinstituteswithnumbers}{
+  \ifnum\value{institutecount}>0
+    $^{1}$\csname institute@1\endcsname%
+    \ifnum\value{institutecount}>1
+      \newcount\tempinstcounter
+      \tempinstcounter=2
+      \loop
+        \ifnum\tempinstcounter>\value{institutecount}
+        \else
+          \par$^{\the\tempinstcounter}$\csname institute@\the\tempinstcounter\endcsname%
+          \advance\tempinstcounter by 1
+      \repeat
+    \fi
+  \fi
+}
+
+% Function to get short presenter names (first letter + last name) for footline
+\newcommand{\shortpresenter}{%
+  % Simple approach - just hard-code the presenters for now
+  \newif\iffirstpresenter%
+  \firstpresentertrue%
+  % Check author 1
+  \ifcsname author@1@presenter\endcsname%
+    \edef\checkpresenter{\csname author@1@presenter\endcsname}%
+    \ifthenelse{\equal{\checkpresenter}{true}}{%
+      \iffirstpresenter%
+        \firstpresenterfalse%
+      \else%
+        , %
+      \fi%
+      \getshortname{\csname author@1@name\endcsname}%
+    }{}%
+  \fi%
+  % Check author 2
+  \ifcsname author@2@presenter\endcsname%
+    \edef\checkpresenter{\csname author@2@presenter\endcsname}%
+    \ifthenelse{\equal{\checkpresenter}{true}}{%
+      \iffirstpresenter%
+        \firstpresenterfalse%
+      \else%
+        , %
+      \fi%
+      \getshortname{\csname author@2@name\endcsname}%
+    }{}%
+  \fi%
+  % Check author 3
+  \ifcsname author@3@presenter\endcsname%
+    \edef\checkpresenter{\csname author@3@presenter\endcsname}%
+    \ifthenelse{\equal{\checkpresenter}{true}}{%
+      \iffirstpresenter%
+        \firstpresenterfalse%
+      \else%
+        , %
+      \fi%
+      \getshortname{\csname author@3@name\endcsname}%
+    }{}%
+  \fi%
+  % Check author 4
+  \ifcsname author@4@presenter\endcsname%
+    \edef\checkpresenter{\csname author@4@presenter\endcsname}%
+    \ifthenelse{\equal{\checkpresenter}{true}}{%
+      \iffirstpresenter%
+        \firstpresenterfalse%
+      \else%
+        , %
+      \fi%
+      \getshortname{\csname author@4@name\endcsname}%
+    }{}%
+  \fi%
+}
+
+\newcommand{\getshortname}[1]{%
+  \StrBefore{#1}{ }[\FirstName]%
+  \StrBehind{#1}{ }[\LastName]%
+  \StrLeft{\FirstName}{1}[\Initial]%
+  \Initial.\ \LastName%
+}
+
+% Helper function to abbreviate first name (simple approach)
+\def\abbreviatefirstname#1 #2\relax{%
+  #1.~#2%
+}
+
+
+% Place ATLAS logo in top right corner on every slide between first and final slide
+\addtobeamertemplate{frametitle}{}{%
+	\begin{tikzpicture}[remember picture,overlay]
+		\coordinate (logo) at ([xshift=-0.6cm, yshift=-0.6cm]current page.north east);
+		\clip (logo) circle (0.85cm);
+		\node at (logo) {\includegraphics[width=0.85cm]{figures/logos/ATLAS_Logo.png}};
+	\end{tikzpicture}
+}
+
+% ATLAS logo title page
+\pgfdeclareimage[height=2cm]{ATLAS}{figures/logos/ATLAS_Logo.png}
+
+\setbeamertemplate{title page}%
+{
+  \begin{tikzpicture}[overlay, remember picture]
+    \clip (current page.north west) rectangle (current page.south east);
+
+    % Blue box
+    \node[rectangle,fill=uniSblue,anchor=south east, minimum width=\paperwidth, minimum height=6cm] (titlebox) at ([yshift=0.5cm]current page.south east) {};
+
+    % Title image
+    \node[circle, fill=white, minimum size=6.5cm, path picture={
+    	\node at (path picture bounding box.center){\pgfuseimage{titleimage}};}] at ([xshift=-3.5cm, yshift=4cm]current page.south east)  {};
+
+    % Uni stuttgart logo crc
+    \node[anchor=north west] at ([xshift=1cm, yshift=-1cm]current page.north west) {\pgfuseimage{unilogo}};
+
+    % Title
+    \node[text=white,anchor=north west,align=left,font=\bfseries\large,text width=0.5\paperwidth](title) at ([xshift=1cm, yshift=-0.5cm]titlebox.north west) {\inserttitle};
+
+    % ATLAS text
+    \ifshowATLASline
+      \node[text=white,anchor=north east,align=left,font=\small,text width=0.5\paperwidth](author) at ([yshift=\baselineskip]title.north east) {Advancing Technologies of Very Low-Altitude Satellites};
+    \fi
+
+    % Author
+    \node[text=white,anchor=north east,align=left,font=\bfseries\normalsize,text width=0.5\paperwidth](author) at ([yshift=-1.1\baselineskip]title.south east) {\hyphenchar\font=-1\getallauthornameswithinstnumbers};
+
+    % Institute
+    \node[text=white,anchor=north east,align=left,font=\small,text width=0.5\paperwidth](institute) at (author.south east) {\hyphenchar\font=-1\getallinstituteswithnumbers};
+
+    % Date/Event
+    \node[text=white,anchor=north east,align=left,font=\bfseries\small,text width=0.5\paperwidth](workshop) at ([yshift=-1.1\baselineskip]institute.south east) {\hyphenchar\font=-1\insertdate};
+
+    % ATLAS logo
+    \node[anchor=center] at ([xshift=-1.25cm, yshift=-7.25cm]current page.north east)
+    {\pgfuseimage{ATLAS}};
+
+    % Funded
+    \node[text=white, align=left, anchor=north west, font=\scriptsize\linespread{0.8}] at ([xshift=1cm, yshift=-8.1cm]current page.north west) {Funded by the Deutsche Forschungsgemeinschaft Project number 516238647 - SFB1667/1};
+  \end{tikzpicture}
+}
+
+% Foot line
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,left]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\hspace{1ex}\shortpresenter
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,right]{title in head/foot}%
+    \usebeamerfont{title in head/foot} \insertframenumber{} / \inserttotalframenumber \hspace{1ex}
+  \end{beamercolorbox}}%
+    \usebeamerfont{title in head/foot}
+  \vskip0pt%
+}
+
+\newlength{\sectiontitlewidth}
+\newlength{\shorttitlewidth}
+
+% Section frame Option A
+\newcommand{\sectionframeA}[2]{
+	\section{#1}
+  \begin{frame}
+	  \settowidth{\sectiontitlewidth}{\bfseries\LARGE#1}
+		\settowidth{\shorttitlewidth}{\small#2}
+
+    \begin{tikzpicture}[overlay, remember picture]
+      \shade[
+          top color=General,
+          bottom color=General,
+          shading angle=-45,
+          %opacity=.8
+      ]
+      (current page.north west) rectangle (current page.south east);
+
+      \node[anchor=center] at (current page.center) {
+      \begin{tikzpicture}
+        % red circle
+        \fill[AreaAred] (\textwidth*0.38, -\textheight*0.2) circle (0.7cm);
+        % green circle
+        \fill[AreaBgreen] (\textwidth*0.5, -\textheight*0.2) circle (0.7cm);
+        % blue circle
+        \fill[AreaCblue] (\textwidth*0.62, -\textheight*0.2) circle (0.7cm);
+
+        % Section title
+        \node[anchor=center, text=General, color=white, font=\bfseries\LARGE, inner sep = 0, outer sep = 0] at (\textwidth*0.5, \textheight*0) {#1};
+
+			  % Short presentation title
+        \node[anchor=center, text=General, color=white, font=\small, inner sep = 0, outer sep = 0] at (\textwidth*0.5 - \sectiontitlewidth/2 + \shorttitlewidth/2, \textheight*0.1) {#2};
+      \end{tikzpicture}
+      };
+    \end{tikzpicture}
+  \end{frame}
+}
+
+% Section frame Option B
+\newcommand{\sectionframeB}[2]{
+	\section{#1}
+  \begin{frame}
+	  \settowidth{\sectiontitlewidth}{\bfseries\LARGE#1}
+		\settowidth{\shorttitlewidth}{\small#2}
+
+    \begin{tikzpicture}[overlay, remember picture]
+      \shade[
+          top color=General,
+          bottom color=General,
+      ]
+      (current page.north west) rectangle (current page.south east);
+
+      % Section title
+      \node[anchor=center, text=General, color=white, font=\bfseries\LARGE] at (current page.center) {#1};
+
+			% Short presentation title
+      \node[anchor=center, text=General, color=white, font=\small] at ($ (current page.center) + (-\sectiontitlewidth/2 + \shorttitlewidth/2, 0.1\textheight) $) {#2};
+    \end{tikzpicture}
+  \end{frame}
+}
+
+% Final slide
+\newcommand{\finalslideoneauthor}[1]{
+	\typeout{DEBUG: finalslideoneauthor called with parameter: #1}
+  \typeout{DEBUG: start frame}
+	\begin{frame}[plain]
+    \begin{tikzpicture}[overlay, remember picture]
+			\shade[%
+			top color=uniSlightblue,
+			bottom color=uniSblue,
+			shading angle=-45,
+			]
+			(current page.north west) rectangle (current page.south east);
+
+      % Uni logo CRC white
+		  \node[anchor=north west] at ([xshift=1cm, yshift=-1cm]current page.north west) {\pgfuseimage{unilogow}};
+
+      % Thank you
+		  \node[align=left, anchor=north west, text=white] at ([xshift=1cm, yshift=-3.5cm]current page.north west) {\textbf{\large Thank You!}};
+
+      % ATLAS logo
+		  \coordinate (logo) at ([xshift=-0.6cm, yshift=-0.6cm]current page.north east);
+		  \node at (logo) {\includegraphics[width=0.85cm]{figures/logos/ATLAS_Logo.png}};
+
+      % Speaker information from authorinfo
+      \node[anchor=north west, text=white, inner sep=0, outer sep=0] (author) at ([xshift=4.5cm, yshift=-5cm]current page.north west) {
+        \begin{tabular}{p{0.25em}l}
+          \multicolumn{2}{l}{\csname author@#1@name\endcsname}\\
+          \multicolumn{2}{l}{\csname author@#1@institute\endcsname}\\
+          \multicolumn{2}{l}{\csname author@#1@department\endcsname}\\
+          \rule{0pt}{2ex}\\
+          {\small\faEnvelope} & \href{mailto:\csname author@#1@email\endcsname}{\csname author@#1@email\endcsname}\\
+          {\small\faPhone}  & \csname author@#1@telephone\endcsname\\
+        \end{tabular}
+      };
+
+      % QRCode (if provided)
+      \edef\tempqrcode{\csname author@#1@qrcode\endcsname}
+      \ifx\tempqrcode\empty
+      \else
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=8cm, yshift=0cm]author.west)
+        {\includegraphics[height=2.5cm]{\tempqrcode}};
+      \fi
+
+      % Speaker image (if provided, otherwise use default)
+      \newlength{\speakerdiameter}
+      \setlength{\speakerdiameter}{1.25cm}
+      \edef\temppicture{\csname author@#1@picture\endcsname}
+      \ifx\temppicture\empty
+        \typeout{DEBUG: No picture provided, using default}
+        \edef\temppicture{figures/presenters/default_speaker.png}
+      \else
+        \typeout{DEBUG: Using provided picture: \temppicture}
+      \fi
+      \typeout{DEBUG: Speaker: \temppicture}
+      \begin{scope}
+        \clip ([xshift=-\speakerdiameter-3ex, yshift=0cm]author.west) circle (\speakerdiameter);
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=-\speakerdiameter-3ex, yshift=0cm]author.west) {\includegraphics[height=2.5cm]{\temppicture}};
+      \end{scope}
+    \end{tikzpicture}
+	\end{frame}
+}
+
+
+% Final slide with two authors using automatic author system
+\newcommand{\finalslidetwoauthors}[2]{
+  \typeout{DEBUG: finalslidetwoauthors called with parameters: #1, #2}
+  \begin{frame}[plain]
+    \begin{tikzpicture}[overlay, remember picture]
+      \shade[%
+      top color=uniSlightblue,
+      bottom color=uniSblue,
+      shading angle=-45,
+      ]
+      (current page.north west) rectangle (current page.south east);
+
+      % Uni logo CRC white
+      \node[anchor=north west] at ([xshift=1cm, yshift=-1cm]current page.north west) {\pgfuseimage{unilogow}};
+
+      % Thank you
+      \node[align=left, anchor=north west, text=white] at ([xshift=1cm, yshift=-2.7cm]current page.north west) {\textbf{\large Thank You!}};
+
+      % ATLAS logo
+      \coordinate (logo) at ([xshift=-0.6cm, yshift=-0.6cm]current page.north east);
+      \node at (logo) {\includegraphics[width=0.85cm]{figures/logos/ATLAS_Logo.png}};
+
+      % First author information
+      \node[anchor=north west, text=white, inner sep=0, outer sep=0] (author1) at ([xshift=4.5cm, yshift=-3.8cm]current page.north west) {
+        \begin{tabular}{p{0.25em}l}
+          \multicolumn{2}{l}{\csname author@#1@name\endcsname}\\
+          \multicolumn{2}{l}{\csname author@#1@institute\endcsname}\\
+          \multicolumn{2}{l}{\csname author@#1@department\endcsname}\\
+          %\rule{0pt}{1ex}\\
+          {\small\faEnvelope} & \href{mailto:\csname author@#1@email\endcsname}{\csname author@#1@email\endcsname}\\
+          {\small\faPhone}  & \csname author@#1@telephone\endcsname\\
+        \end{tabular}
+      };
+
+      % Second author information
+      \node[anchor=north west, text=white, inner sep=0, outer sep=0] (author2) at ([xshift=4.5cm, yshift=-6.5cm]current page.north west) {
+        \begin{tabular}{p{0.25em}l}
+          \multicolumn{2}{l}{\csname author@#2@name\endcsname}\\
+          \multicolumn{2}{l}{\csname author@#2@institute\endcsname}\\
+          \multicolumn{2}{l}{\csname author@#2@department\endcsname}\\
+          %\rule{0pt}{1ex}\\
+          {\small\faEnvelope} & \href{mailto:\csname author@#2@email\endcsname}{\csname author@#2@email\endcsname}\\
+          {\small\faPhone}  & \csname author@#2@telephone\endcsname\\
+        \end{tabular}
+      };
+
+      % First speaker image (if provided, otherwise use default)
+      \newlength{\speakerdiametertwo}
+      \setlength{\speakerdiametertwo}{1.1cm}
+      \edef\temppictureone{\csname author@#1@picture\endcsname}
+      \ifx\temppictureone\empty
+        \edef\temppictureone{figures/presenters/default_speaker.png}
+      \fi
+      \begin{scope}
+        \clip ([xshift=-\speakerdiametertwo-3ex, yshift=0cm]author1.west) circle (\speakerdiametertwo);
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=-\speakerdiametertwo-3ex, yshift=0cm]author1.west) {\includegraphics[height=2.2cm]{\temppictureone}};
+      \end{scope}
+
+      % Second speaker image (if provided, otherwise use default)
+      \edef\temppicturetwo{\csname author@#2@picture\endcsname}
+      \ifx\temppicturetwo\empty
+        \edef\temppicturetwo{figures/presenters/default_speaker.png}
+      \fi
+      \begin{scope}
+        \clip ([xshift=-\speakerdiametertwo-3ex, yshift=0cm]author2.west) circle (\speakerdiametertwo);
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=-\speakerdiametertwo-3ex, yshift=0cm]author2.west) {\includegraphics[height=2.2cm]{\temppicturetwo}};
+      \end{scope}
+
+      % No QR codes
+    \end{tikzpicture}
+  \end{frame}
+}
+
+
+% Final slide with three authors using automatic author system
+\newcommand{\finalslidethreeauthors}[3]{
+  \begin{frame}[plain]
+    \begin{tikzpicture}[overlay, remember picture]
+      \shade[%
+      top color=uniSlightblue,
+      bottom color=uniSblue,
+      shading angle=-45,
+      ]
+      (current page.north west) rectangle (current page.south east);
+
+      % Uni logo CRC white
+      \node[anchor=north west] at ([xshift=1cm, yshift=-1cm]current page.north west) {\pgfuseimage{unilogow}};
+
+      % Thank you
+      \node[align=left, anchor=north west, text=white] at ([xshift=1cm, yshift=-2.7cm]current page.north west) {\textbf{\large Thank You!}};
+
+      % ATLAS logo
+      \coordinate (logo) at ([xshift=-0.6cm, yshift=-0.6cm]current page.north east);
+      \node at (logo) {\includegraphics[width=0.85cm]{figures/logos/ATLAS_Logo.png}};
+
+      % First author information
+      \node[anchor=north west, text=white, inner sep=0, outer sep=0] (author1) at ([xshift=2.2cm, yshift=-3.8cm]current page.north west) {
+        \begin{tabular}{p{0.25em}l}
+          \multicolumn{2}{l}{\small \csname author@#1@name\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#1@institute\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#1@department\endcsname}\\
+          %\rule{0pt}{1ex}\\
+          {\small\faEnvelope} & \small \href{mailto:\csname author@#1@email\endcsname}{\csname author@#1@email\endcsname}\\
+          {\small\faPhone}  & \small \csname author@#1@telephone\endcsname\\
+        \end{tabular}
+      };
+
+      % Second author information
+      \node[anchor=north west, text=white, inner sep=0, outer sep=0] (author2) at ([xshift=2.2cm, yshift=-6.5cm]current page.north west) {
+        \begin{tabular}{p{0.25em}l}
+          \multicolumn{2}{l}{\small \csname author@#2@name\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#2@institute\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#2@department\endcsname}\\
+          %\rule{0pt}{1ex}\\
+          {\small\faEnvelope} & \small \href{mailto:\csname author@#2@email\endcsname}{\csname author@#2@email\endcsname}\\
+          {\small\faPhone}  & \small \csname author@#2@telephone\endcsname\\
+        \end{tabular}
+      };
+
+      % Third author information
+      \node[anchor=north west, text=white, inner sep=0, outer sep=0] (author3) at ([xshift=10.2cm, yshift=-3.8cm]current page.north west) {
+        \begin{tabular}{p{0.25em}l}
+          \multicolumn{2}{l}{\small \csname author@#3@name\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#3@institute\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#3@department\endcsname}\\
+          %\rule{0pt}{1ex}\\
+          {\small\faEnvelope} & \small \href{mailto:\csname author@#3@email\endcsname}{\csname author@#3@email\endcsname}\\
+          {\small\faPhone}  & \small \csname author@#3@telephone\endcsname\\
+        \end{tabular}
+      };
+
+      % First speaker image (if provided, otherwise use default)
+      \newlength{\speakerdiametertwo}
+      \setlength{\speakerdiametertwo}{1cm}
+      \newlength{\distancebetween}
+      \setlength{\distancebetween}{0ex}
+      \edef\temppictureone{\csname author@#1@picture\endcsname}
+      \ifx\temppictureone\empty
+        \edef\temppictureone{figures/presenters/default_speaker.png}
+      \fi
+      \begin{scope}
+        \clip ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author1.west) circle (\speakerdiametertwo);
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author1.west) {\includegraphics[height=2.2cm]{\temppictureone}};
+      \end{scope}
+
+      % Second speaker image (if provided, otherwise use default)
+      \edef\temppicturetwo{\csname author@#2@picture\endcsname}
+      \ifx\temppicturetwo\empty
+        \edef\temppicturetwo{figures/presenters/default_speaker.png}
+      \fi
+      \begin{scope}
+        \clip ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author2.west) circle (\speakerdiametertwo);
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author2.west) {\includegraphics[height=2.2cm]{\temppicturetwo}};
+      \end{scope}
+
+      % Third speaker image (if provided, otherwise use default)
+      \edef\temppicturethree{\csname author@#3@picture\endcsname}
+      \ifx\temppicturethree\empty
+        \edef\temppicturethree{figures/presenters/default_speaker.png}
+      \fi
+      \begin{scope}
+        \clip ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author3.west) circle (\speakerdiametertwo);
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author3.west) {\includegraphics[height=2.2cm]{\temppicturethree}};
+      \end{scope}
+
+      % No QR codes
+    \end{tikzpicture}
+  \end{frame}
+}
+
+
+% Final slide with four authors using automatic author system
+\newcommand{\finalslidefourauthors}[4]{
+  \begin{frame}[plain]
+    \begin{tikzpicture}[overlay, remember picture]
+      \shade[%
+      top color=uniSlightblue,
+      bottom color=uniSblue,
+      shading angle=-45,
+      ]
+      (current page.north west) rectangle (current page.south east);
+
+      % Uni logo CRC white
+      \node[anchor=north west] at ([xshift=1cm, yshift=-1cm]current page.north west) {\pgfuseimage{unilogow}};
+
+      % Thank you
+      \node[align=left, anchor=north west, text=white] at ([xshift=1cm, yshift=-2.7cm]current page.north west) {\textbf{\large Thank You!}};
+
+      % ATLAS logo
+      \coordinate (logo) at ([xshift=-0.6cm, yshift=-0.6cm]current page.north east);
+      \node at (logo) {\includegraphics[width=0.85cm]{figures/logos/ATLAS_Logo.png}};
+
+      % First author information
+      \node[anchor=north west, text=white, inner sep=0, outer sep=0] (author1) at ([xshift=2.2cm, yshift=-3.8cm]current page.north west) {
+        \begin{tabular}{p{0.25em}l}
+          \multicolumn{2}{l}{\small \csname author@#1@name\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#1@institute\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#1@department\endcsname}\\
+          %\rule{0pt}{1ex}\\
+          {\small\faEnvelope} & \small \href{mailto:\csname author@#1@email\endcsname}{\csname author@#1@email\endcsname}\\
+          {\small\faPhone}  & \small \csname author@#1@telephone\endcsname\\
+        \end{tabular}
+      };
+
+      % Second author information
+      \node[anchor=north west, text=white, inner sep=0, outer sep=0] (author2) at ([xshift=2.2cm, yshift=-6.5cm]current page.north west) {
+        \begin{tabular}{p{0.25em}l}
+          \multicolumn{2}{l}{\small \csname author@#2@name\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#2@institute\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#2@department\endcsname}\\
+          %\rule{0pt}{1ex}\\
+          {\small\faEnvelope} & \small \href{mailto:\csname author@#2@email\endcsname}{\csname author@#2@email\endcsname}\\
+          {\small\faPhone}  & \small \csname author@#2@telephone\endcsname\\
+        \end{tabular}
+      };
+
+      % Third author information
+      \node[anchor=north west, text=white, inner sep=0, outer sep=0] (author3) at ([xshift=10.2cm, yshift=-3.8cm]current page.north west) {
+        \begin{tabular}{p{0.25em}l}
+          \multicolumn{2}{l}{\small \csname author@#3@name\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#3@institute\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#3@department\endcsname}\\
+          %\rule{0pt}{1ex}\\
+          {\small\faEnvelope} & \small \href{mailto:\csname author@#3@email\endcsname}{\csname author@#3@email\endcsname}\\
+          {\small\faPhone}  & \small \csname author@#3@telephone\endcsname\\
+        \end{tabular}
+      };
+
+      % Fourth author information
+      \node[anchor=north west, text=white, inner sep=0, outer sep=0] (author4) at ([xshift=10.2cm, yshift=-6.5cm]current page.north west) {
+        \begin{tabular}{p{0.25em}l}
+          \multicolumn{2}{l}{\small \csname author@#4@name\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#4@institute\endcsname}\\
+          \multicolumn{2}{l}{\small \csname author@#4@department\endcsname}\\
+          %\rule{0pt}{1ex}\\
+          {\small\faEnvelope} & \small \href{mailto:\csname author@#4@email\endcsname}{\csname author@#4@email\endcsname}\\
+          {\small\faPhone}  & \small \csname author@#4@telephone\endcsname\\
+        \end{tabular}
+      };
+
+      % First speaker image (if provided, otherwise use default)
+      \newlength{\speakerdiametertwo}
+      \setlength{\speakerdiametertwo}{1cm}
+      \newlength{\distancebetween}
+      \setlength{\distancebetween}{0ex}
+      \edef\temppictureone{\csname author@#1@picture\endcsname}
+      \ifx\temppictureone\empty
+        \edef\temppictureone{figures/presenters/default_speaker.png}
+      \fi
+      \begin{scope}
+        \clip ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author1.west) circle (\speakerdiametertwo);
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author1.west) {\includegraphics[height=2.2cm]{\temppictureone}};
+      \end{scope}
+
+      % Second speaker image (if provided, otherwise use default)
+      \edef\temppicturetwo{\csname author@#2@picture\endcsname}
+      \ifx\temppicturetwo\empty
+        \edef\temppicturetwo{figures/presenters/default_speaker.png}
+      \fi
+      \begin{scope}
+        \clip ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author2.west) circle (\speakerdiametertwo);
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author2.west) {\includegraphics[height=2.2cm]{\temppicturetwo}};
+      \end{scope}
+
+      % Third speaker image (if provided, otherwise use default)
+      \edef\temppicturethree{\csname author@#3@picture\endcsname}
+      \ifx\temppicturethree\empty
+        \edef\temppicturethree{figures/presenters/default_speaker.png}
+      \fi
+      \begin{scope}
+        \clip ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author3.west) circle (\speakerdiametertwo);
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author3.west) {\includegraphics[height=2.2cm]{\temppicturethree}};
+      \end{scope}
+
+      % Fourth speaker image (if provided, otherwise use default)
+      \edef\temppicturefour{\csname author@#4@picture\endcsname}
+      \ifx\temppicturefour\empty
+        \edef\temppicturefour{figures/presenters/default_speaker.png}
+      \fi
+      \begin{scope}
+        \clip ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author4.west) circle (\speakerdiametertwo);
+        \node[anchor=center, inner sep=0, outer sep=0] at ([xshift=-\speakerdiametertwo-\distancebetween, yshift=0cm]author4.west) {\includegraphics[height=2.2cm]{\temppicturefour}};
+      \end{scope}
+
+      % No QR codes
+    \end{tikzpicture}
+  \end{frame}
+}
+
+
+% Automatic final slide using presenter information
+\newcommand{\finalslide}{
+  % Count the number of presenters and store their numbers
+  \newcounter{presentercounter}
+  \setcounter{presentercounter}{0}
+  \newcounter{authorlooptemp}
+  \setcounter{authorlooptemp}{1}
+  \def\firstpresenternum{}
+  \def\secondpresenternum{}
+  \def\thirdpresenternum{}
+  \def\fourthpresenternum{}
+
+  % Loop through authors to count presenters and store their numbers
+  \loop
+    \ifcsname author@\arabic{authorlooptemp}@presenter\endcsname
+      \edef\checkpresenter{\csname author@\arabic{authorlooptemp}@presenter\endcsname}
+      \ifthenelse{\equal{\checkpresenter}{true}}{
+        \stepcounter{presentercounter}
+        \ifnum\value{presentercounter}=1
+          \edef\firstpresenternum{\arabic{authorlooptemp}}
+        \fi
+        \ifnum\value{presentercounter}=2
+          \edef\secondpresenternum{\arabic{authorlooptemp}}
+        \fi
+        \ifnum\value{presentercounter}=3
+          \edef\thirdpresenternum{\arabic{authorlooptemp}}
+        \fi
+        \ifnum\value{presentercounter}=4
+          \edef\fourthpresenternum{\arabic{authorlooptemp}}
+        \fi
+      }{}
+    \else
+      \setcounter{authorlooptemp}{10} % break if no more authors
+    \fi
+    \stepcounter{authorlooptemp}
+    \ifnum\value{authorlooptemp}<10
+  \repeat
+
+  % Debug output
+  \typeout{DEBUG: Found \arabic{presentercounter} presenters}
+  \typeout{DEBUG: First presenter number: \firstpresenternum}
+  \typeout{DEBUG: Second presenter number: \secondpresenternum}
+  \typeout{DEBUG: Third presenter number: \thirdpresenternum}
+  \typeout{DEBUG: Fourth presenter number: \fourthpresenternum}
+
+  % Select appropriate slide layout based on presenter count
+  \typeout{DEBUG: presentercounter = \arabic{presentercounter}}
+  \ifnum\value{presentercounter}=0
+    \PackageError{beamerthemeuniS}{No presenter defined}{Please define at least one author with presenter=true}
+  \fi
+  \ifnum\value{presentercounter}=1
+    \typeout{DEBUG: Using single presenter mode}
+    \finalslideoneauthor{\firstpresenternum}
+  \fi
+  \ifnum\value{presentercounter}=2
+    \typeout{DEBUG: Using two presenter mode}
+    \finalslidetwoauthors{\firstpresenternum}{\secondpresenternum}
+  \fi
+  \ifnum\value{presentercounter}=3
+    \typeout{DEBUG: Using three presenter mode - falling back to two presenter layout}
+    \PackageWarning{beamerthemeuniS}{Three presenters detected, using two-presenter layout with first two presenters}
+    \finalslidethreeauthors{\firstpresenternum}{\secondpresenternum}{\thirdpresenternum}
+  \fi
+  \ifnum\value{presentercounter}=4
+    \typeout{DEBUG: Using four presenter mode - falling back to two presenter layout}
+    \PackageWarning{beamerthemeuniS}{Four presenters detected, using two-presenter layout with first two presenters}
+    \finalslidefourauthors{\firstpresenternum}{\secondpresenternum}{\thirdpresenternum}{\fourthpresenternum}
+  \fi
+  \ifnum\value{presentercounter}>4
+    \typeout{DEBUG: Too many presenters - falling back to single presenter layout}
+    \PackageWarning{beamerthemeuniS}{More than 4 presenters detected (\arabic{presentercounter}), using single-presenter layout with first presenter}
+    \finalslideoneauthor{\firstpresenternum}
+  \fi
+}
+
+
+% PICLas slide
+\newcommand{\piclasslide}{
+  \begin{frame}
+    \centering
+    \begin{tikzpicture}[overlay, remember picture]
+      % Define RGB color
+      \definecolor{boltzplatzBlue}{RGB}{6, 123, 252}
+
+      % PICLas logo
+      \node[anchor=center] (PICLas) at (current page.center) {\includegraphics[width=0.45\textwidth]{figures/piclas/piclas.pdf}};
+
+      % Examples
+      \node[anchor=center] at ([xshift=6.2cm, yshift=3cm]current page.center) {\includegraphics[width=1.7cm]{figures/piclas/Laser_pulse}};
+      \node[anchor=center] at ([xshift=-6.2cm, yshift=3cm]current page.center) {\includegraphics[width=1.7cm]{figures/piclas/Streamer}};
+      \node[anchor=center] at ([xshift=6.2cm, yshift=0cm]current page.center) {\includegraphics[width=2.5cm]{figures/piclas/TWT_2000px.jpg}};
+      \node[anchor=center] at ([xshift=-6.2cm, yshift=0cm]current page.center) {\includegraphics[width=1.7cm]{figures/piclas/electric_propulsion_new}};
+      \node[anchor=center] at ([xshift=6.2cm, yshift=-3cm]current page.center) {\includegraphics[width=1.7cm]{figures/piclas/Titan_Aerocapture}};
+      \node[anchor=center] at ([xshift=-6.2cm, yshift=-3cm]current page.center) {\includegraphics[width=2.5cm]{figures/piclas/Gyrotron}};
+
+      % PICLas methods
+      \def\boxwidth{1.5cm}
+      \def\boxheight{1cm}
+      \node[anchor=center] at ([xshift=-1cm, yshift=3cm]current page.center) {\includegraphics[width=1.5cm]{figures/piclas/dsmc_coin.pdf}};
+      \node[anchor=center] at ([xshift=-3cm, yshift=3cm]current page.center) {\includegraphics[width=1.5cm]{figures/piclas/fp_coin.pdf}};
+      \node[anchor=center] at ([xshift=1cm, yshift=3cm]current page.center) {\includegraphics[width=1.5cm]{figures/piclas/bgk_coin.pdf}};
+      \node[anchor=center] at ([xshift=3cm, yshift=3cm]current page.center) {\includegraphics[width=1.5cm]{figures/piclas/pic_coin.pdf}};
+
+      % PICLas QR code
+      \node[anchor=center] at ([xshift=0cm, yshift=-3cm]current page.center) {\includegraphics[width=2.2cm]{figures/piclas/qrcode_piclas_git.pdf}};
+
+      % IRS and boltzplatz logos
+      \node[anchor=east] at ([xshift=-1cm, yshift=-2.8cm]current page.center) {\includegraphics[width=1.5cm]{figures/logos/IRS.pdf}};
+      \node[anchor=west] at ([xshift=1cm, yshift=-3cm]current page.center) {\includegraphics[width=3.5cm]{figures/piclas/boltzplatz.png}};
+
+    \end{tikzpicture}
+  \end{frame}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamertemplate{headline}
+
+% Set rounded blocks with shadow
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+
+\mode
+<all>
