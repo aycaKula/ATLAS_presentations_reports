@@ -22,7 +22,7 @@
 \setbeamercolor{background canvas}{bg=PrimaryMuted}
 
 % Include authors preceding the project leader(s)
-\author{Atlas the Titan}
+\author{Ayça Kula Arslan}
 
 % =============================================================================
 % Content hooks — fill in each block below. Adjust block names in accordance
@@ -35,22 +35,28 @@
 %\renewcommand{\SummaryContent}{%
 \renewcommand{\BackgroundContent}{%
     % ---- Your Summary / background content here ----
-    \textbf{Instructions:} The poster is intended for the status update poster session during the Off-site Event in May 2026 and provide an update to the ATLAS Gallery. Please note that the use of the template's suggested content structure is entirely optional and that you may adapt your poster as you best see fit. However, please ensure that the poster's overall design scheme adheres to this template and that it covers the essential items as described below.
+    \begin{itemize}
+        \item Distributed space systems which include both cooperative and non-cooperative constellations demand autonomous decision making algorithms to manage mission planning, task allocation, and maneuver planning.
+    \end{itemize}
 }
 
 \renewcommand{\ObjectivesContent}{%
     % ---- Your Objectives content here ----
+    \begin{itemize}
+        \item Decentralized Mission Planning: Developing decentralized decision-making algorithms for satellite constellations. The algorithms will enable satellites to make decisions based on local information and interactions with neighboring satellites, without relying on a central controller. This part aims to design an on-board scheduling algorithm for constellations.
+        \item Performance Comparison: Comparing the performance of the centralized and distributed algorithms through simulations.
+        \item Integrating Maneuver Planning: Implementing maneuvering planning for satellites to optimize their positions and orientations in order to execute assigned tasks and avoid collisions. Control algorithms should guarantee that the end state of the satellite is reachable with the scheduled possible maneuvers.
+        \item Uncertainty Handling: Examining the impact of uncertainties on self-organization algorithms.
+    \end{itemize}
 }
 
 %\renewcommand{\ProjectPlanContent}{%
 \renewcommand{\MethodsContent}{%
     % ---- Your Project plan / methods content here ----
-    \textbf{Essential content:}
     \begin{itemize}
-    	\item The poster should focus on the progress of your project research and show research highlights.
-    	\item The poster should provide a short introduction to your project's motivation, its objectives, and its methods for "casual" viewers.
-    	\item Essential links and collaborations to other projects should be outlined and illustrated. Project clusters and/or areas may consider e.g. presenting a common visualisation scheme.
-    	\item Please feel encouraged to include references to your relevant publications.
+        \item Central Planner (On Ground): The task assignment is performed by a central planning algorithm on the ground, which collects information about the satellites and the mission tasks, and then assigns tasks based on the constraints and availabilities of each satellite.
+        \item Modeling: The system constraints are modelled in Eclipse Modeling Framework to easily manage the mission planning process.
+        \item Reconfiguration – Ongoing: Simulations for different mission scenarios are performed in order to investigate the possibility of reconfiguration of missions in satellites during run-time.
     \end{itemize}
 }
 
@@ -60,7 +66,7 @@
 	\begin{itemize}
 		\item Please be sure to include the authoring researchers and date in the appropriate fields. The colour scheme, project leader names, project icon and institute logos are automatically adjusted based on the input project number.
 		\item The size, relative placement and headers of the content blocks may be adjusted in the style template file \textit{ATLAS\_poster\_template\_2026.sty}.
-	\end{itemize}    
+	\end{itemize}
 }
 
 %\renewcommand{\OutlookContent}{%
