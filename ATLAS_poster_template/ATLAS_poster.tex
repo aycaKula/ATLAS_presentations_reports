@@ -8,6 +8,7 @@
 \setmainfont{Arial}
 \setsansfont{Arial}
 \setmonofont{Arial}
+\usepackage{svg}
 
 % =============================================================================
 % Load the poster template (2024 = initial review, 2026 = research status)
@@ -33,20 +34,30 @@
 \renewcommand{\PosterDate}{\today}
 
 %\renewcommand{\SummaryContent}{%
-\renewcommand{\BackgroundContent}{%
+\renewcommand{\Motivation}{%
     % ---- Your Summary / background content here ----
     \begin{itemize}
-        \item Distributed space systems which include both cooperative and non-cooperative constellations demand autonomous decision making algorithms to manage mission planning, task allocation, and maneuver planning.
+        %\item  Distributed space systems are \textit{``An end-to-end system including two or more space vehicles and a cooperative infrastructure for science measurement, data acquisition, processing, analysis and distribution.''} (Alfriend et al., 2010, p.\,1)
+        \item Multi-satellite missions are typically executed via direct ground commanding of each spacecraft, or through a central hub satellite that relays pre-computed plans to individual detector satellites.
+        \item VLEO satellites has limited communication windows and transmission delays that makes centralized control impractical.
+        \item Distributed space systems will take advantage of real-time decision making algorithms to manage mission planning and perform related maneuver planning without human intervention.
+        \item Multi-mission + reconfiguration
+        
+        
     \end{itemize}
 }
 
 \renewcommand{\ObjectivesContent}{%
     % ---- Your Objectives content here ----
     \begin{itemize}
-        \item Decentralized Mission Planning: Developing decentralized decision-making algorithms for satellite constellations. The algorithms will enable satellites to make decisions based on local information and interactions with neighboring satellites, without relying on a central controller. This part aims to design an on-board scheduling algorithm for constellations.
-        \item Performance Comparison: Comparing the performance of the centralized and distributed algorithms through simulations.
-        \item Integrating Maneuver Planning: Implementing maneuvering planning for satellites to optimize their positions and orientations in order to execute assigned tasks and avoid collisions. Control algorithms should guarantee that the end state of the satellite is reachable with the scheduled possible maneuvers.
-        \item Uncertainty Handling: Examining the impact of uncertainties on self-organization algorithms.
+        \item Autonomous Decision Making: Developing algorithms for autonomous decision making in multi-satellite missions, enabling satellites to make decisions based on local information and interactions with neighboring satellites and ground stations.
+        \item Decentralized Mission Planning: Creating decentralized mission planning algorithms that allow satellites to collaboratively plan and execute tasks without relying on a central controller.
+        %\item Real-time: Implementing real-time task assignment algorithms that can adapt to changing conditions and constraints in the space environment.
+        %\item Integrating Maneuver Planning: Implementing maneuvering planning for satellites to optimize their positions and orientations in order to execute assigned tasks and avoid collisions. Control algorithms should guarantee that the end state of the satellite is reachable with the scheduled possible maneuvers.
+        \item The scenario is that users request tasks (imagery tasks or data collection tasks) on-demand and receive the task as soon as possible.
+        \item  Reconfiguration(multi mission)- Maneuvering.
+   
+    
     \end{itemize}
 }
 
@@ -54,26 +65,38 @@
 \renewcommand{\MethodsContent}{%
     % ---- Your Project plan / methods content here ----
     \begin{itemize}
-        \item Central Planner (On Ground): The task assignment is performed by a central planning algorithm on the ground, which collects information about the satellites and the mission tasks, and then assigns tasks based on the constraints and availabilities of each satellite.
-        \item Modeling: The system constraints are modelled in Eclipse Modeling Framework to easily manage the mission planning process.
-        \item Reconfiguration – Ongoing: Simulations for different mission scenarios are performed in order to investigate the possibility of reconfiguration of missions in satellites during run-time.
+        \item Linear Programming
+        \item Markov Decision Processes 
+        \item Reinforcement Learning (?)
+        
+        \centering
+        \includesvg[width=0.3\linewidth]{figures/modelling_poster.svg}
+        
     \end{itemize}
 }
 
 \renewcommand{\CollaborationsContent}{%
-    % ---- Your Collaborations content here ----
-    \textbf{Notes on \LaTeX template:}
-	\begin{itemize}
-		\item Please be sure to include the authoring researchers and date in the appropriate fields. The colour scheme, project leader names, project icon and institute logos are automatically adjusted based on the input project number.
-		\item The size, relative placement and headers of the content blocks may be adjusted in the style template file \textit{ATLAS\_poster\_template\_2026.sty}.
-	\end{itemize}
+    \centering
+    \includesvg[height=220mm]{figures/collab.svg}
 }
 
 %\renewcommand{\OutlookContent}{%
 \renewcommand{\ResearchContent}{%
-    % ---- Your Outlook / research highlights content here ----
+    \vfill
+    \centering
+    \includesvg[width=0.4\linewidth]{figures/highLevel.svg}\hspace{10mm}%
+    \includesvg[height=180mm]{figures/requests.svg}\hspace{10mm}%
+    \includesvg[height=180mm]{figures/problem_sketch.svg}%
+    \vfill
 }
 
+
+%\renewcommand{\OutlookContent}{%
+\renewcommand{\References}{%
+    {\footnotesize
+    \noindent Adams, C., Kempa, B., Iatauro, M., Frank, J., \& Vaughan, W. (2023). An overview of distributed spacecraft autonomy at NASA Ames.
+    }
+}
 % =============================================================================
 \begin{document}
 \begin{frame}[t]

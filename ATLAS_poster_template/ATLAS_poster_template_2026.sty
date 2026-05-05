@@ -342,8 +342,11 @@
 \newlength{\HeightRowTwo}
 \setlength{\HeightRowTwo}{\dimexpr3\TotalHeightRows/10\relax}
 
+\newlength{\HeightRowFour}
+\setlength{\HeightRowFour}{80mm}
+
 \newlength{\HeightRowThree}
-\setlength{\HeightRowThree}{\dimexpr4\TotalHeightRows/10\relax}
+\setlength{\HeightRowThree}{\dimexpr4\TotalHeightRows/10 - \HeightRowFour - \BlockGap\relax}
 
 \newlength{\MiniHeightRowOne}   % row 1 block height: 258.440mm
 %\setlength{\MiniHeightRowOne}{\dimexpr 258.440mm - \ContentTopSkip - \BlockPad\relax}
@@ -369,6 +372,9 @@
 %\setlength{\RowThreeY}{\dimexpr\RowTwoY + 289.310mm + \BlockGap\relax}
 \setlength{\RowThreeY}{\dimexpr\RowTwoY + \HeightRowTwo + \BlockGap\relax}
 
+\newlength{\RowFourY}
+\setlength{\RowFourY}{\dimexpr\RowThreeY + \HeightRowThree + \BlockGap\relax}
+
 % -- Right-column x-start positions -------------------------------------------
 \newlength{\ColRightX}
 \setlength{\ColRightX}{\dimexpr\BlockGap + \ColWidthHalf + \BlockGap\relax}
@@ -387,11 +393,12 @@
 % =============================================================================
 \newcommand{\PosterDate}{}
 
-\newcommand{\BackgroundContent}{}
+\newcommand{\Motivation}{}
 \newcommand{\ObjectivesContent}{}
 \newcommand{\MethodsContent}{}
 \newcommand{\CollaborationsContent}{}
 \newcommand{\ResearchContent}{}
+\newcommand{\References}{}
 
 % =============================================================================
 % \makemyposter
@@ -466,11 +473,11 @@
       \fill[white, rounded corners=13mm]
         (start) rectangle ([xshift=\ColWidthBackground, yshift=-\HeightRowOne]start);
       \node[anchor=north west, text=black, font=\bfseries\fontsize{54pt}{54pt}\selectfont, inner sep=0]
-        at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Background};
+        at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Motivation};
       \node[anchor=north west, inner sep=0, font=\fontsize{36pt}{36pt}\selectfont]
         at ([xshift=\BlockPad, yshift=-\ContentTopSkip]start)
         {\begin{minipage}[t][\MiniHeightRowOne][t]{\MiniWidthBackground}%
-          \BackgroundContent%
+          \Motivation%
         \end{minipage}};
     \end{tikzpicture}%
     %
@@ -488,48 +495,59 @@
         \end{minipage}};
     \end{tikzpicture}%
     %
-    % --- METHODS block ---
+    % --- RESEARCH block ---
     \begin{tikzpicture}[remember picture,overlay]
       \coordinate (start) at ([xshift=\BlockGap, yshift=-\RowTwoY]current page.north west);
       \fill[white, rounded corners=13mm]
-%        (start) rectangle ([xshift=\ColWidthCollaborations, yshift=-289.310mm]start);
-        (start) rectangle ([xshift=\ColWidthMethods, yshift=-\HeightRowTwo]start);
+        (start) rectangle ([xshift=\ColWidthFull, yshift=-\HeightRowTwo]start);
+      \node[anchor=north west, text=black, font=\bfseries\fontsize{54pt}{54pt}\selectfont, inner sep=0]
+        at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Research Highlights};
+      \node[anchor=north west, inner sep=0, font=\fontsize{36pt}{36pt}\selectfont]
+        at ([xshift=\BlockPad, yshift=-\ContentTopSkip]start)
+        {\begin{minipage}[t][\MiniHeightRowTwo][t]{\MiniWidthFull}%
+          \ResearchContent%
+        \end{minipage}};
+    \end{tikzpicture}%
+    %
+    % --- METHODS block ---
+    \begin{tikzpicture}[remember picture,overlay]
+      \coordinate (start) at ([xshift=\BlockGap, yshift=-\RowThreeY]current page.north west);
+      \fill[white, rounded corners=13mm]
+        (start) rectangle ([xshift=\ColWidthMethods, yshift=-\HeightRowThree]start);
       \node[anchor=north west, text=black, font=\bfseries\fontsize{54pt}{54pt}\selectfont, inner sep=0]
         at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Methods};
       \node[anchor=north west, inner sep=0, font=\fontsize{36pt}{36pt}\selectfont]
         at ([xshift=\BlockPad, yshift=-\ContentTopSkip]start)
-        {\begin{minipage}[t][\MiniHeightRowTwo][t]{\MiniWidthMethods}%
+        {\begin{minipage}[t][\MiniHeightRowThree][t]{\MiniWidthMethods}%
           \MethodsContent%
         \end{minipage}};
     \end{tikzpicture}%
     %
     % --- COLLABORATIONS block ---
     \begin{tikzpicture}[remember picture,overlay]
-      \coordinate (start) at ([xshift=\CollaborationsX, yshift=-\RowTwoY]current page.north west);
+      \coordinate (start) at ([xshift=\CollaborationsX, yshift=-\RowThreeY]current page.north west);
       \fill[white, rounded corners=13mm]
-%        (start) rectangle ([xshift=\ColWidthOutlook, yshift=-289.310mm]start);
-        (start) rectangle ([xshift=\ColWidthCollaborations, yshift=-\HeightRowTwo]start);
+        (start) rectangle ([xshift=\ColWidthCollaborations, yshift=-\HeightRowThree]start);
       \node[anchor=north west, text=black, font=\bfseries\fontsize{54pt}{54pt}\selectfont, inner sep=0]
         at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Collaborations};
       \node[anchor=north west, inner sep=0, font=\fontsize{36pt}{36pt}\selectfont]
         at ([xshift=\BlockPad, yshift=-\ContentTopSkip]start)
-        {\begin{minipage}[t][\MiniHeightRowTwo][t]{\MiniWidthCollaborations}%
+        {\begin{minipage}[t][\MiniHeightRowThree][t]{\MiniWidthCollaborations}%
           \CollaborationsContent%
         \end{minipage}};
     \end{tikzpicture}%
     %
-    % --- RESEARCH block ---
+    % --- REFERENCES box ---
     \begin{tikzpicture}[remember picture,overlay]
-      \coordinate (start) at ([xshift=\BlockGap, yshift=-\RowThreeY]current page.north west);
+      \coordinate (start) at ([xshift=\BlockGap, yshift=-\RowFourY]current page.north west);
       \fill[white, rounded corners=13mm]
- %       (start) rectangle ([xshift=\ColWidthFull, yshift=-340.790mm]start);
-       (start) rectangle ([xshift=\ColWidthFull, yshift=-\HeightRowThree]start);
-      \node[anchor=north west, text=black, font=\bfseries\fontsize{54pt}{54pt}\selectfont, inner sep=0]
-        at ([xshift=\BlockPad, yshift=-\BlockPad]start) {Research Highlights};
-      \node[anchor=north west, inner sep=0, font=\fontsize{36pt}{36pt}\selectfont]
-        at ([xshift=\BlockPad, yshift=-\ContentTopSkip]start)
-        {\begin{minipage}[t][\MiniHeightRowThree][t]{\MiniWidthFull}%
-          \ResearchContent%
+        (start) rectangle ([xshift=\ColWidthFull, yshift=-\HeightRowFour]start);
+      \node[anchor=north west, text=black, font=\bfseries\fontsize{36pt}{36pt}\selectfont, inner sep=0]
+        at ([xshift=\BlockPad, yshift=-\BlockPad]start) {References};
+      \node[anchor=north west, inner sep=0, font=\fontsize{28pt}{34pt}\selectfont]
+        at ([xshift=\BlockPad, yshift=-\dimexpr\BlockPad+28pt+8pt\relax]start)
+        {\begin{minipage}[t]{\MiniWidthFull}%
+          \References%
         \end{minipage}};
     \end{tikzpicture}%
     %
